@@ -19,7 +19,7 @@ build-backend = "setuptools.build_meta"
 v4t = "app:run"
 
 [tool.setuptools]
-include-package-data = true
+packages = ["widgets", "utils"]
 
 [tool.setuptools.package-data]
 "*" = ["*.tcss"]
