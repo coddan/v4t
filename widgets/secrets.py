@@ -26,7 +26,7 @@ class SecretsWidget(Static):
                 yield Label("MOUNTS", classes="header-label")
                 yield ListView(id="mount-list")
             with Vertical(id="key-container"):
-                yield Label("KEYS", classes="header-label")
+                yield Label("SECRETS", classes="header-label")
                 yield ListView(id="key-list")
             with Vertical(id="editor-container"):
                 yield Label("EDITOR", classes="header-label")
