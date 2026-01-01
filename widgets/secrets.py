@@ -15,6 +15,11 @@ class SecretsWidget(Static):
         ("ctrl+s", "save_secret", "Save"),
     ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.current_mount = ""
+        self.current_path = ""
+
     def compose(self) -> ComposeResult:
         with Horizontal():
             with Vertical(id="mount-container"):
@@ -47,42 +52,66 @@ class SecretsWidget(Static):
     @on(ListView.Selected, "#mount-list")
     async def handle_mount_selected(self, event):
         self.current_mount = event.item.vault_path
+        self.current_path = ""
         await self.refresh_keys()
 
     async def refresh_keys(self):
         try:
             lst = self.query_one("#key-list", ListView)
-            
             await lst.query("ListItem").remove() 
             
-            if not hasattr(self, 'current_mount') or not self.current_mount:
+            if not self.current_mount:
                 return
 
-            keys = self.app.vault.list_keys(self.current_mount)
+            keys = self.app.vault.list_keys(self.current_mount, self.current_path)
             
-            if not keys:
-                self.notify(f"No keys found in '{self.current_mount}'", severity="warning")
-                return
+            if self.current_path:
+                back_item = ListItem(Label("󰉖 .. (Back)"), id="key_back")
+                back_item.is_dir = True
+                back_item.is_back = True
+                lst.append(back_item)
 
             for key in keys:
-                safe_mnt = self.current_mount.replace("/", "_")
-                safe_key = key.replace("/", "_").replace(".", "_")
-                unique_id = f"key_{safe_mnt}_{safe_key}"
+                is_dir = key.endswith("/")
+                icon = "󰉋" if is_dir else "󰏓"
                 
-                item = ListItem(Label(key), id=unique_id)
+                safe_key = key.replace("/", "_").replace(".", "_")
+                unique_id = f"key_{safe_key}"
+                
+                item = ListItem(Label(f"{icon} {key}"))
                 item.vault_key = key
-                item.vault_mount = self.current_mount
+                item.is_dir = is_dir
+                item.is_back = False
                 lst.append(item)
                 
         except Exception as e:
             self.notify(f"Could not load keys: {e}", severity="error")
 
     @on(ListView.Selected, "#key-list")
-    def handle_key_selected(self, event):
-        self.current_key = event.item.vault_key
-        self.query_one("#secret-path").value = self.current_key
-        data = self.app.vault.read_secret(self.current_mount, self.current_key)
-        self.query_one("#secret-editor").load_text(json.dumps(data, indent=2))
+    async def handle_key_selected(self, event):
+        item = event.item
+        
+        if hasattr(item, "is_back") and item.is_back:
+            parts = self.current_path.strip("/").split("/")
+            self.current_path = "/".join(parts[:-1])
+            if self.current_path: 
+                self.current_path += "/"
+            await self.refresh_keys()
+            return
+
+        if item.is_dir:
+            self.current_path += item.vault_key 
+            await self.refresh_keys()
+            return
+
+        full_key_path = f"{self.current_path}{item.vault_key}"
+        self.query_one("#secret-path").value = full_key_path
+        
+        try:
+            data = self.app.vault.read_secret(self.current_mount, full_key_path)
+            self.query_one("#secret-editor").load_text(json.dumps(data, indent=2))
+        except Exception as e:
+            self.notify(f"Read failed: {e}", severity="error")
 
     def action_create_secret(self):
         if not hasattr(self, 'current_mount'):
@@ -99,12 +128,11 @@ class SecretsWidget(Static):
         if not path:
             self.notify("Path is missing!", severity="error")
             return
-
         try:
             data = json.loads(raw_content)
             self.app.vault.save_secret(self.current_mount, path, data)
-            self.notify(f"Saved '{path}' in {self.current_mount}")
-            self.refresh_keys()
+            self.notify(f"Saved '{path}'")
+            self.run_worker(self.refresh_keys())
         except json.JSONDecodeError:
             self.notify("Invalid JSON format!", severity="error")
         except Exception as e:
