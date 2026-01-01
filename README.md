@@ -47,6 +47,17 @@ python3 -m nuitka --onefile --standalone --include-data-files=app.tcss=app.tcss 
 ```
 
 
+## Use
+```
+Windows:
+$env:VAULT_ADDR = "http://192.168.1.227:8200"
+$env:VAULT_TOKEN = "vault-root-token"
+
+Linux
+export VAULT_ADDR="http://127.0.0.1:8200"
+export VAULT_TOKEN="vault-root-token"
+```
+
 ## Images
 
 ![Secrets](./assets/v4t_secrets.png)
