@@ -1,0 +1,145 @@
+/* --- Sophisticated Color Palette --- */
+App {
+    background: #0a0a0a;
+    color: #e8e8e8;
+}
+
+Header {
+    dock: top;
+    height: 3;
+    background: #004d3d;
+    color: #ffffff;
+    text-style: bold;
+    content-align: center middle;
+    /* Changed to 'double' as it is a valid bordertype */
+    border-bottom: double #006e51;
+}
+
+Footer {
+    dock: bottom;
+    height: 1;
+    background: #121212;
+    color: #666666;
+}
+
+/* --- Navigation Bar --- */
+#nav-bar {
+    dock: top;
+    height: 3;
+    background: #121212;
+    border-bottom: tall #006e51;
+    align: center middle;
+    padding: 0 2;
+}
+
+#nav-bar Button {
+    height: 1;
+    margin: 0 2;
+    border: none;
+    background: transparent;
+    color: #888888; /* Dimmed text for inactive buttons */
+}
+
+/* Hover effect */
+#nav-bar Button:hover {
+    color: #ffffff;
+    background: #ffffff 10%;
+}
+
+/* Ensure high contrast for the active tab */
+#nav-bar Button.-primary {
+    background: #006e51;    /* Deep Emerald */
+    color: #ffffff;         /* Pure white text */
+    text-style: bold;
+    border-bottom: tall #00ffcc; /* Neon underline for visibility */
+}
+
+/* Specific fix for focused buttons to prevent text disappearing */
+#nav-bar Button:focus {
+    color: #ffffff !important;
+    background: #008b6b;
+    text-style: bold italic;
+}
+
+/* --- Container Layouts --- */
+#mount-container, #key-container, #policy-sidebar, #group-side {
+    width: 20%;
+    /* Changed 'vline' to 'solid' which is valid */
+    border-right: solid #1a1a1a;
+    background: #121212;
+}
+
+/* --- Section Headers --- */
+.header-label {
+    width: 100%;
+    background: #006e51;
+    color: white;
+    text-align: center;
+    text-style: bold;
+    padding: 1;
+    margin-bottom: 1;
+    /* Changed 'thin' to 'solid' which is valid */
+    border-bottom: solid #00ffcc;
+}
+
+/* --- Lists and Tables --- */
+ListView {
+    background: transparent;
+}
+
+ListView > ListItem.--highlight {
+    background: #006e51 40%;
+    color: #00ffcc;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: #006e51;
+    color: white;
+    text-style: bold;
+}
+
+/* --- Form Elements --- */
+Input {
+    border: tall #333333;
+    background: #1a1a1a;
+    color: #00ffcc;
+}
+
+Input:focus {
+    border: tall #00ffcc;
+}
+
+TextArea {
+    border: tall #1a1a1a;
+    background: #050505;
+}
+
+/* --- Focus System --- */
+Vertical:focus-within {
+    /* Changed 'vline' to 'solid' */
+    border-right: solid #00ffcc;
+    background: #ffffff 3%;
+}
+
+/* --- Modals --- */
+#modal-container {
+    padding: 1 4;
+    background: #161616;
+    border: thick #006e51;
+    width: 60;
+    height: auto;
+    max-height: 80vh;
+    align: center middle;
+    /* 'shadow' removed as it is invalid */
+}
+
+#modal-buttons Button#save {
+    background: #006e51;
+    color: white;
+}
+
+#modal-buttons Button#cancel {
+    background: #442222;
+    color: #ff8888;
+}
