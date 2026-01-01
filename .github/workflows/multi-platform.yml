@@ -33,7 +33,7 @@ jobs:
       - name: Compile for linux
         if: ${{ contains(matrix.os, 'ubuntu-latest') }}
         run: |
-          nuitka3 --output-dir=bin/linux --standalone --output-filename=v4t -include-data-file=app.tcss=app.tcss --onefile app.py
+          nuitka --output-dir=bin/linux --standalone --output-filename=v4t -include-data-file=app.tcss=app.tcss --onefile app.py
 
       - name: Compile for windows
         if: ${{ contains(matrix.os, 'windows-latest') }}
