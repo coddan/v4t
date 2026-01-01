@@ -1,0 +1,50 @@
+name: Build Vault TUI with Nuitka
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # Build for Linux and Windows (macOS is also possible)
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[build]"
+
+      - name: Compile for linux
+        if: ${{ contains(matrix.os, 'ubuntu-latest') }}
+        run: |
+          nuitka3 --output-dir=bin/linux --standalone --output-filename=v4t -include-data-file=app.tcss=app.tcss --onefile app.py
+
+      - name: Compile for windows
+        if: ${{ contains(matrix.os, 'windows-latest') }}
+        run: |
+           nuitka --output-dir=bin/windows --output-filename=v4t --standalone --onefile -include-data-file=app.tcss=app.tcss --mingw64 --assume-yes-for-downloads app.py
+
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ runner.os }} Build
+          path: |
+            bin/linux/v4t
+            bin/windows/v4t.exe
