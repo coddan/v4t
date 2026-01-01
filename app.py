@@ -10,7 +10,7 @@ from widgets.identity import IdentityWidget
 from widgets.policies import PoliciesWidget
 
 class VaultTUI(App):
-    CSS_PATH = "app_widget.tcss"
+    CSS_PATH = "app.tcss"
 
     BINDINGS = [
         ("1", "switch_tab('secrets')", "Secrets"),
