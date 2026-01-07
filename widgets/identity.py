@@ -51,7 +51,8 @@ class IdentityWidget(Static):
                 p_list = ", ".join(ent.get("policies", [])) or "-"
                 
                 table.add_row(
-                    ent["name"], 
+                    #ent["name"],
+                    ent["aliases"][0]["name"],
                     ent["id"], 
                     p_list,
                     ", ".join(sorted(g_names)) if g_names else "-",
