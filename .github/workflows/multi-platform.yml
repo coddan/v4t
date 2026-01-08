@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Install System Dependencies
         run: |
-          dnf install -y python3.11 python3.11-devel gcc ccache binutils
+          dnf install -y python3.11 python3.11-devel gcc binutils
           python3.11 -m ensurepip
 
       - name: Checkout Code
