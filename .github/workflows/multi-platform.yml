@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Install System Dependencies
         run: |
+          dnf install -y epel-release
+          dnf config-manager --set-enabled crb
           dnf install -y python3.11 python3.11-devel gcc binutils patchelf
           python3.11 -m ensurepip
 
