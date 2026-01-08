@@ -1,20 +1,39 @@
 name: Build Vault TUI with Nuitka
 
 on:
-  #push:
-  #  branches: [ main ]
-  #pull_request:
-  #  branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        # Build for Linux and Windows (macOS is also possible)
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+  build-linux:
+    runs-on: ubuntu-latest
+    container: rockylinux:9
+    steps:
+      - name: Install System Dependencies
+        run: |
+          dnf install -y python3.11 python3.11-devel gcc ccache binutils
+          python3.11 -m ensurepip
 
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          python3.11 -m pip install --upgrade pip
+          python3.11 -m pip install -e ".[build]"
+
+      - name: Compile for linux
+        run: |
+          python3.11 -m nuitka --output-dir=bin/linux --standalone --output-filename=v4t --include-data-file=app.tcss=app.tcss --onefile app.py
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux Build
+          path: bin/linux/v4t
+
+  # Windows build on standard runner
+  build-windows:
+    runs-on: windows-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -30,21 +49,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[build]"
 
-      - name: Compile for linux
-        if: ${{ contains(matrix.os, 'ubuntu-latest') }}
-        run: |
-          nuitka --output-dir=bin/linux --standalone --output-filename=v4t --include-data-file=app.tcss=app.tcss --onefile app.py
-
       - name: Compile for windows
-        if: ${{ contains(matrix.os, 'windows-latest') }}
         run: |
-           nuitka --output-dir=bin/windows --output-filename=v4t --standalone --onefile --include-data-file=app.tcss=app.tcss --mingw64 --assume-yes-for-downloads app.py
+          nuitka --output-dir=bin/windows --output-filename=v4t --standalone --onefile --include-data-file=app.tcss=app.tcss --mingw64 --assume-yes-for-downloads app.py
 
-
-      - name: Upload Artifacts
+      - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ runner.os }} Build
-          path: |
-            bin/linux/v4t
-            bin/windows/v4t.exe
+          name: Windows Build
+          path: bin/windows/v4t.exe
